@@ -1,27 +1,60 @@
+
 plugins {
+    id 'org.springframework.boot' version '2.1.5.RELEASE'
     id 'java'
     id 'maven'
 }
+
+apply plugin: 'io.spring.dependency-management'
 
 repositories {
     mavenCentral()
 }
 
+ext {
+    springCloudVersion = 'Greenwich.SR1'
+    junitJupiterVersion = '5.4.1'
+}
+
+ext['junit-jupiter.version'] = '5.4.1'
+
 dependencies {
-    implementation 'org.springframework.cloud:spring-cloud-gateway-core:2.1.1.RELEASE'
-    implementation 'org.springframework.cloud:spring-cloud-gateway-mvc:2.1.1.RELEASE'
-    implementation 'org.springframework.cloud:spring-cloud-gateway-webflux:2.1.1.RELEASE'
 
-    testCompile("org.junit.jupiter:junit-jupiter-api:5.4.1")
-    testCompile("org.junit.jupiter:junit-jupiter-params:5.4.1")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.4.1")
+    // Main
+    implementation("org.springframework.cloud:spring-cloud-starter-gateway")
 
-    testCompile 'org.springframework:spring-test:5.1.5.RELEASE'
+    // Test
+    testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testCompile("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+    testCompile("org.springframework.boot:spring-boot-starter-security")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    // testCompile("org.springframework.cloud:spring-cloud-starter-gateway")
+    testCompile("org.springframework.cloud:spring-cloud-starter-netflix-ribbon")
+    testCompile("org.springframework:spring-test")
+    testCompile("io.projectreactor:reactor-test")
+
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 test {
     useJUnitPlatform()
 }
 
-targetCompatibility = 1.8
-sourceCompatibility = 1.8
+compileJava {
+    sourceCompatibility = 1.8  // can be switched to 11 for testing
+    targetCompatibility = 1.8
+    options.encoding = "UTF-8"
+}
+
+compileTestJava {
+    sourceCompatibility = 1.8  // can be switched to 11 for testing
+    targetCompatibility = 1.8
+    options.encoding = "UTF-8"
+    options.compilerArgs += "-parameters"
+}
