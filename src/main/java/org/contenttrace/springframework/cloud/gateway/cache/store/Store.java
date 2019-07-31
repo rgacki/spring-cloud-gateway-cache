@@ -5,6 +5,9 @@ import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Optional;
 
+/**
+ * A cache store.
+ */
 public interface Store {
 
   /**
@@ -23,5 +26,19 @@ public interface Store {
    * @return the entry
    */
   Optional<? extends Entry> find(ServerHttpRequest request);
+
+  /**
+   * Returns the events accessor for this store.
+   *
+   * @return the events accessor
+   */
+  Events events();
+
+  /**
+   * Returns the metrics accessor for this store.
+   *
+   * @return the metrics accessor
+   */
+  Metrics metrics();
 
 }

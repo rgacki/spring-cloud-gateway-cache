@@ -15,13 +15,17 @@ public class CreateCacheEntryFilter implements GatewayFilter {
 
   private static final Logger LOG = LoggerFactory.getLogger(CreateCacheEntryFilter.class);
 
+  private final CacheConfiguration cacheConfiguration;
   private final Store store;
   private final Rule createRule;
 
-  public CreateCacheEntryFilter(final Store store,
+  public CreateCacheEntryFilter(final CacheConfiguration cacheConfiguration,
+                                final Store store,
                                 final Rule createRule) {
+    requireNonNull(cacheConfiguration, "'cacheConfiguration' must not be null!");
     requireNonNull(store, "'store' must not be null!");
     requireNonNull(createRule, "'createRule' must not be null!");
+    this.cacheConfiguration = cacheConfiguration;
     this.store = store;
     this.createRule = createRule;
   }
@@ -38,6 +42,10 @@ public class CreateCacheEntryFilter implements GatewayFilter {
     if (!shouldCache(exchange)) {
       LOG.debug("Not caching exchange [{}].", exchange);
       return chain.filter(exchange);
+    }
+
+    if (cacheConfiguration.isExposeCacheEventHeader()) {
+      exchange.getResponse().getHeaders().add("X-Cache-Event", "store");
     }
 
     return chain.filter(store.write(exchange));

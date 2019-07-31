@@ -5,12 +5,15 @@ package org.contenttrace.springframework.cloud.gateway.cache.store;
  *
  * @param <T> the concrete store configuration
  */
-public interface StoreFactory<T extends StoreFactory.StoreConfiguration> {
+public interface StoreFactory<T extends StoreConfiguration> {
 
-  interface StoreConfiguration {
-
-  }
-
-  Store create(CacheKeyProducer cacheKeyProducer, T configuration);
+  /**
+   * Creates a new instance of the store.
+   *
+   * @param cacheKeyProducer the producer of the cache key
+   * @param configuration the configuration
+   * @return the instance
+   */
+  Store createInstance(CacheKeyProducer cacheKeyProducer, T configuration);
 
 }

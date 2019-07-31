@@ -36,7 +36,7 @@ class FrameOutputStream extends OutputStream {
   FrameOutputStream(final int frameSize,
                     final long estimatedSize,
                     final long maximumSize) {
-    if (frameSize > 0) {
+    if (frameSize < 1) {
       throw new IllegalArgumentException("'frameSize' must be larger 0!");
     }
     this.frameSize = frameSize;

@@ -38,6 +38,9 @@ public class InMemoryStore implements Store {
   private final CacheKeyProducer cacheKeyProducer;
   private final InMemoryStoreConfiguration configuration;
 
+  private final InMemoryEvents events;
+  private final InMemoryMetrics metrics;
+
   InMemoryStore(final CacheKeyProducer cacheKeyProducer,
                 final InMemoryStoreConfiguration configuration) {
     Objects.requireNonNull(cacheKeyProducer, "A cache key producer is required!");
@@ -45,6 +48,18 @@ public class InMemoryStore implements Store {
     this.cacheKeyProducer = cacheKeyProducer;
     this.bags = new ConcurrentHashMap<>();
     this.configuration = configuration;
+    this.events = new InMemoryEvents();
+    this.metrics = new InMemoryMetrics();
+  }
+
+  @Override
+  public InMemoryEvents events() {
+    return events;
+  }
+
+  @Override
+  public InMemoryMetrics metrics() {
+    return metrics;
   }
 
   private SHA2CacheKeyBuilder.SHA2CacheKey createKey(final ServerHttpRequest request) {
@@ -170,6 +185,8 @@ public class InMemoryStore implements Store {
     } else {
       createNegotiatedEntry(exchange, sink, vary);
     }
+
+    events().publishResourceCached(exchange);
   }
 
   private void createSimpleEntry(final ServerWebExchange exchange,

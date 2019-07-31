@@ -27,7 +27,7 @@ dependencies {
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
     testCompile("org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
-    testCompile("org.springframework.boot:spring-boot-starter-security")
+    // testCompile("org.springframework.boot:spring-boot-starter-security")
     testCompile("org.springframework.boot:spring-boot-starter-test")
     // testCompile("org.springframework.cloud:spring-cloud-starter-gateway")
     testCompile("org.springframework.cloud:spring-cloud-starter-netflix-ribbon")
