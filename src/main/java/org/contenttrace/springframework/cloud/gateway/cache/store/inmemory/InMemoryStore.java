@@ -117,7 +117,9 @@ public class InMemoryStore implements Store {
       outputStream
     );
 
-    final byte[] copyBuffer = new byte[1024 * 8];
+    final boolean traceEnabled = LOG.isTraceEnabled();
+
+    final byte[] copyBuffer = new byte[8 * 1024];
 
     final ServerHttpResponseDecorator decorator = new ServerHttpResponseDecorator(exchange.getResponse()) {
 
@@ -131,12 +133,27 @@ public class InMemoryStore implements Store {
               return buffer;
             }
 
+            if (traceEnabled) {
+              LOG.trace("initial state - readPos: {}, writePos: {}, readable: {}", buffer.readPosition(), buffer.writePosition(), buffer.readableByteCount());
+            }
+
             final int initialReadPosition = buffer.readPosition();
+
             int lastReadPosition = initialReadPosition;
-            while (buffer.readableByteCount() > 0) {
-              buffer.read(copyBuffer);
+            int readableByteCount = buffer.readableByteCount();
+
+            while (readableByteCount > 0) {
+
+              if (traceEnabled) {
+                LOG.trace("loop - readPos: {}, writePos: {}, readable: {}", buffer.readPosition(), buffer.writePosition(), buffer.readableByteCount());
+              }
+
+              buffer.read(copyBuffer, 0, Math.min(readableByteCount, copyBuffer.length));
+
               final int currentReadPosition = buffer.readPosition();
               final int bytesRead = currentReadPosition - lastReadPosition;
+              readableByteCount = readableByteCount - bytesRead;
+
               try {
                 sink.outputStream.write(copyBuffer, 0, bytesRead);
               } catch (IOException e) {
@@ -144,6 +161,7 @@ public class InMemoryStore implements Store {
                 sink.dirty = true;
                 return buffer.readPosition(initialReadPosition);
               }
+
               lastReadPosition = currentReadPosition;
             }
 
