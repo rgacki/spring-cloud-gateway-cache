@@ -18,7 +18,7 @@ spring:
 
 logging:
   level:
-    org.springframework.cloud.gateway: TRACE
+    org.contenttrace.springframework.cloud.gateway.cache: TRACE
     org.springframework.http.server.reactive: DEBUG
     org.springframework.web.reactive: DEBUG
     reactor.ipc.netty: DEBUG

@@ -53,6 +53,7 @@ public class InMemoryCacheTests extends CacheIntegrationTests {
 
   @BeforeEach
   void setup() {
+    super.setup();
     baseUri = "http://localhost:" + port;
     this.webClient = WebTestClient.bindToServer()
       .responseTimeout(Duration.ofSeconds(10)).baseUrl(baseUri).build();

@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
+import org.springframework.cloud.gateway.filter.WebClientWriteResponseFilter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -36,11 +39,24 @@ public class InMemoryCacheTestApplication {
   }
 
   @Bean
-  public RouteLocator customRouteLocator(final RouteLocatorBuilder builder, final Store store) {
+  public CacheConfiguration cacheConfiguration() {
+    final CacheConfiguration configuration = new CacheConfiguration();
+    configuration.setExposeCacheEventHeader(true);
+    return configuration;
+  }
+
+  @Bean
+  public RouteLocator customRouteLocator(final RouteLocatorBuilder builder,
+                                         final CacheConfiguration cacheConfiguration,
+                                         final Store store) {
+
+    final GatewayFilter createCacheEntry
+      = new CreateCacheEntryFilter(cacheConfiguration, store, StandardRules.httpCompliant());
+
     return builder.routes()
       .route(r -> r.host("cached.org", "**.cached.org")
         .filters(
-          filters -> filters.filter(new CreateCacheEntryFilter(store, StandardRules.httpCompliant()))
+          filters -> filters.filter(createCacheEntry)
         )
         .uri(backendUri))
       .build();
