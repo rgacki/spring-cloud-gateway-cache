@@ -1,5 +1,6 @@
 package org.contenttrace.springframework.cloud.gateway.cache;
 
+import org.contenttrace.springframework.cloud.gateway.cache.rules.Rule;
 import org.contenttrace.springframework.cloud.gateway.cache.rules.StandardRules;
 import org.contenttrace.springframework.cloud.gateway.cache.store.CacheKeyProducer;
 import org.contenttrace.springframework.cloud.gateway.cache.store.StandardCacheKeyProducer;
@@ -50,13 +51,17 @@ public class InMemoryCacheTestApplication {
                                          final CacheConfiguration cacheConfiguration,
                                          final Store store) {
 
-    final GatewayFilter createCacheEntry
-      = new CreateCacheEntryFilter(cacheConfiguration, store, StandardRules.httpCompliant());
+    final Rule cacheRule = StandardRules.httpCompliant();
+
+    final GatewayFilter createCacheEntry =
+      new CreateCacheEntryFilter(cacheConfiguration, store, cacheRule);
+    final GatewayFilter findCacheEntry =
+      new FindCacheEntryFilter(cacheConfiguration, store, cacheRule);
 
     return builder.routes()
       .route(r -> r.host("cached.org", "**.cached.org")
         .filters(
-          filters -> filters.filter(createCacheEntry)
+          filters -> filters.filters(createCacheEntry, findCacheEntry)
         )
         .uri(backendUri))
       .build();

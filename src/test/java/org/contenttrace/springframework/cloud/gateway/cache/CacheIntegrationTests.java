@@ -7,6 +7,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 public abstract class CacheIntegrationTests extends IntegrationTests {
@@ -35,18 +36,30 @@ public abstract class CacheIntegrationTests extends IntegrationTests {
   void shouldCacheRequest() {
 
     // When
-    client().get().uri("/cacheable").header("Host", CACHED_HOST)
+    final EntityExchangeResult<byte[]> firstResult = client().get().uri("/cacheable").header("Host", CACHED_HOST)
+      .header("X-Test", "shouldCacheRequest(#1)")
       .exchange()
       .expectStatus().isOk()
-      .expectHeader().valueEquals("X-Cache-Event", "store")
+      .expectHeader().valueEquals("X-Cache", "store")
       .expectBody()
-      .consumeWith(result -> {
-        final byte[] responseBody = result.getResponseBody();
-        Assertions.assertNotNull(responseBody);
-      });
+      .returnResult();
 
-    // THen
+    // Then
     testEvents.assertLast().isOfType(ResourceCachedEvent.class);
+    Assertions.assertNotNull(firstResult);
+
+    // When
+    final EntityExchangeResult<byte[]> secondResult = client().get().uri("/cacheable").header("Host", CACHED_HOST)
+      .header("X-Test", "shouldCacheRequest(#2)")
+      .exchange()
+      .expectStatus().isOk()
+      .expectHeader().valueEquals("X-Cache", "hit", "store")
+      .expectBody()
+      .returnResult();
+
+    // Then
+    Assertions.assertNotNull(secondResult);
+    Assertions.assertArrayEquals(firstResult.getResponseBody(), secondResult.getResponseBody());
   }
 
 }

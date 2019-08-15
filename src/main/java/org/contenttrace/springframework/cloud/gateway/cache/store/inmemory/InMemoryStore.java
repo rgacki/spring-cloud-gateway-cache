@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.Objects.requireNonNull;
 
@@ -82,11 +83,11 @@ public class InMemoryStore implements Store {
     if (bag instanceof NegotiatedRepresentationBag) {
       final NegotiatedRepresentationBag negotiatedBag = ((NegotiatedRepresentationBag) bag);
       final NegotiatedRepresentation representation = negotiatedBag.find(request).orElse(null);
-      if (representation != null) {
-        return Optional.of(new InMemoryEntry(bag, representation));
+      if (representation != null && representation.isValid()) {
+        return Optional.of(new InMemoryEntry(this, bag, representation));
       }
-    } else if (bag instanceof SimpleRepresentationBag) {
-      return Optional.of(new InMemoryEntry(bag, ((SimpleRepresentationBag) bag).representation));
+    } else if (bag instanceof SimpleRepresentationBag && ((SimpleRepresentationBag) bag).representation.isValid()) {
+      return Optional.of(new InMemoryEntry(this, bag, ((SimpleRepresentationBag) bag).representation));
     }
 
     return Optional.empty();
@@ -215,7 +216,7 @@ public class InMemoryStore implements Store {
       sink.outputStream.getFrames(),
       sink.outputStream.size()
     );
-    final SimpleRepresentationBag bag = new SimpleRepresentationBag(exchange.getRequest(), entry);
+    final SimpleRepresentationBag bag = new SimpleRepresentationBag(key, exchange.getRequest(), entry);
     bags.put(key, bag);
   }
 
@@ -237,6 +238,7 @@ public class InMemoryStore implements Store {
     bags.compute(key, (existingKey, existingBag) -> {
       if (!(existingBag instanceof NegotiatedRepresentationBag)) {
         return new NegotiatedRepresentationBag(
+          key,
           exchange.getRequest(),
           new LinkedHashSet<>(vary)
         ).add(entry);
@@ -245,13 +247,20 @@ public class InMemoryStore implements Store {
     });
   }
 
+  private void remove(final Bag bag, final Representation representation) {
+
+  }
+
   private static class InMemoryEntry implements Entry {
 
+    private final InMemoryStore store;
     private final Bag bag;
     private final Representation representation;
 
-    private InMemoryEntry(final Bag bag,
+    private InMemoryEntry(final InMemoryStore store,
+                          final Bag bag,
                           final Representation representation) {
+      this.store = store;
       this.bag = bag;
       this.representation = representation;
     }
@@ -299,6 +308,19 @@ public class InMemoryStore implements Store {
       return representation.size;
     }
 
+    @Override
+    public void invalidate() {
+      representation.invalidate();
+      store.remove(bag, representation);
+    }
+
+    @Override
+    public String toString() {
+      return "InMemoryEntry{" +
+        "bag=" + bag +
+        ", representation=" + representation +
+        '}';
+    }
   }
 
   private static class PayloadSink {
@@ -317,6 +339,7 @@ public class InMemoryStore implements Store {
     private final HttpHeaders responseHeaders;
     private final List<byte[]> payload;
     private final long size;
+    private final AtomicBoolean invalidated;
 
     private Representation(final HttpHeaders responseHeaders,
                            final List<byte[]> payload,
@@ -326,10 +349,27 @@ public class InMemoryStore implements Store {
       this.responseHeaders = responseHeaders;
       this.payload = payload;
       this.size = size;
+      this.invalidated = new AtomicBoolean(false);
+    }
+
+    void invalidate() {
+      invalidated.compareAndSet(false, true);
+    }
+
+    boolean isValid() {
+      return !invalidated.get();
     }
 
     boolean matches(final ServerHttpRequest request) {
       return true;
+    }
+
+    @Override
+    public String toString() {
+      return "Representation{" +
+        "size=" + size +
+        ", invalidated=" + invalidated +
+        '}';
     }
   }
 
@@ -382,16 +422,23 @@ public class InMemoryStore implements Store {
 
   private static abstract class Bag {
 
+    private final SHA2CacheKeyBuilder.SHA2CacheKey key;
     private final String method;
     private final String host;
     private final String path;
     private final String query;
 
-    Bag(final ServerHttpRequest request) {
+    Bag(final SHA2CacheKeyBuilder.SHA2CacheKey key,
+        final ServerHttpRequest request) {
+      this.key = key;
       this.method = request.getMethodValue();
       this.host = request.getHeaders().getFirst("Host");
       this.path = request.getURI().getPath();
       this.query = request.getURI().getQuery();
+    }
+
+    public SHA2CacheKeyBuilder.SHA2CacheKey getKey() {
+      return key;
     }
 
     abstract Optional<? extends Representation> find(ServerHttpRequest request);
@@ -402,9 +449,10 @@ public class InMemoryStore implements Store {
 
     private final Representation representation;
 
-    private SimpleRepresentationBag(final ServerHttpRequest request,
+    private SimpleRepresentationBag(final SHA2CacheKeyBuilder.SHA2CacheKey key,
+                                    final ServerHttpRequest request,
                                     final Representation representation) {
-      super(request);
+      super(key, request);
       this.representation = representation;
     }
 
@@ -419,9 +467,10 @@ public class InMemoryStore implements Store {
     private final Set<String> varyHeaders;
     private final List<NegotiatedRepresentation> entries;
 
-    private NegotiatedRepresentationBag(final ServerHttpRequest request,
+    private NegotiatedRepresentationBag(final SHA2CacheKeyBuilder.SHA2CacheKey key,
+                                        final ServerHttpRequest request,
                                         final Set<String> varyHeaders) {
-      super(request);
+      super(key, request);
       this.varyHeaders = varyHeaders;
       this.entries = new CopyOnWriteArrayList<>();
     }

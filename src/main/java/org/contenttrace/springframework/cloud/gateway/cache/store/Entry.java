@@ -69,4 +69,11 @@ public interface Entry {
    */
   long size();
 
+  /**
+   * Invalidates this cache entry. This method must be side-effect free. So for example, if the entry is already
+   * invalidated or if an I/O related issue occurs, the method should return without an error. Any errors must be
+   * handled by the implementation internally.
+   */
+  void invalidate();
+
 }
