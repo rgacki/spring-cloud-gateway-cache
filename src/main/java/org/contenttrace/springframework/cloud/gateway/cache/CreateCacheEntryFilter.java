@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 import static java.util.Objects.requireNonNull;
 
-public class CreateCacheEntryFilter implements CacheEntryFilter, Ordered {
+class CreateCacheEntryFilter implements CacheEntryFilter, Ordered {
 
   private static final Logger LOG = LoggerFactory.getLogger(CreateCacheEntryFilter.class);
 

@@ -1,5 +1,10 @@
 package org.contenttrace.springframework.cloud.gateway.cache;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(
+  prefix = "cloud.gateway.cache"
+)
 public class CacheConfiguration {
 
   private boolean exposeCacheEventHeader = false;

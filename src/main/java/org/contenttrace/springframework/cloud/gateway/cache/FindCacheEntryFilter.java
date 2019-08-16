@@ -6,12 +6,11 @@ import org.contenttrace.springframework.cloud.gateway.cache.store.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.core.Ordered;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-public class FindCacheEntryFilter implements CacheEntryFilter, Ordered {
+class FindCacheEntryFilter implements CacheEntryFilter, Ordered {
 
   private static final Logger LOG = LoggerFactory.getLogger(FindCacheEntryFilter.class);
 

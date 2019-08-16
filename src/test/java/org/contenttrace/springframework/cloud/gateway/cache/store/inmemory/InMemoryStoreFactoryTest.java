@@ -15,10 +15,10 @@ class InMemoryStoreFactoryTest {
     // Given
     final CacheKeyProducer cacheKeyProducer = StandardCacheKeyProducer.getInstance();
     final InMemoryStoreConfiguration configuration = new InMemoryStoreConfiguration();
-    final InMemoryStoreFactory factory = new InMemoryStoreFactory();
+    final InMemoryStoreFactory factory = new InMemoryStoreFactory(configuration);
 
     // When
-    final Store store = factory.createInstance(cacheKeyProducer, configuration);
+    final Store store = factory.createInstance(cacheKeyProducer);
 
     // Then
     assertNotNull(store);

@@ -12,14 +12,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
-import org.springframework.cloud.gateway.filter.WebClientWriteResponseFilter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration
+@Import(CacheAutoConfiguration.class)
 public class InMemoryCacheTestApplication {
 
   public static void main(String[] args) {
@@ -30,16 +30,6 @@ public class InMemoryCacheTestApplication {
   String backendUri;
 
   @Bean
-  public Store defaultCacheStore() {
-
-    final InMemoryStoreFactory storeFactory = new InMemoryStoreFactory();
-    final CacheKeyProducer cacheKeyProducer = StandardCacheKeyProducer.getInstance().includeHost();
-    final InMemoryStoreConfiguration configuration = new InMemoryStoreConfiguration();
-
-    return storeFactory.createInstance(cacheKeyProducer, configuration);
-  }
-
-  @Bean
   public CacheConfiguration cacheConfiguration() {
     final CacheConfiguration configuration = new CacheConfiguration();
     configuration.setExposeCacheEventHeader(true);
@@ -48,15 +38,15 @@ public class InMemoryCacheTestApplication {
 
   @Bean
   public RouteLocator customRouteLocator(final RouteLocatorBuilder builder,
-                                         final CacheConfiguration cacheConfiguration,
-                                         final Store store) {
+                                         final CreateCacheEntryFilterFactory createCacheEntryFilterFactory,
+                                         final FindCacheEntryFilterFactory findCacheEntryFilterFactory) {
 
     final Rule cacheRule = StandardRules.httpCompliant();
 
     final GatewayFilter createCacheEntry =
-      new CreateCacheEntryFilter(cacheConfiguration, store, cacheRule);
+      createCacheEntryFilterFactory.apply(new CreateCacheEntryFilterFactory.Config());
     final GatewayFilter findCacheEntry =
-      new FindCacheEntryFilter(cacheConfiguration, store, cacheRule);
+      findCacheEntryFilterFactory.apply(new FindCacheEntryFilterFactory.Config());
 
     return builder.routes()
       .route(r -> r.host("cached.org", "**.cached.org")
