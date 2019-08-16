@@ -1,5 +1,6 @@
 package org.contenttrace.springframework.cloud.gateway.cache.store.inmemory;
 
+import org.contenttrace.springframework.cloud.gateway.cache.store.CacheKey;
 import org.contenttrace.springframework.cloud.gateway.cache.store.CacheKeyProducer;
 import org.contenttrace.springframework.cloud.gateway.cache.store.Entry;
 import org.contenttrace.springframework.cloud.gateway.cache.store.Store;
@@ -28,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -73,8 +75,8 @@ public class InMemoryStore implements Store {
   public Optional<? extends Entry> find(final ServerHttpRequest request) {
     requireNonNull(request, "'request' must not be null!");
 
-    final SHA2CacheKeyBuilder.SHA2CacheKey key = createKey(request);
-    final Bag bag = bags.get(key);
+    final SHA2CacheKeyBuilder.SHA2CacheKey cacheKey = createKey(request);
+    final Bag bag = bags.get(cacheKey);
 
     if (bag == null) {
       return Optional.empty();
@@ -84,13 +86,53 @@ public class InMemoryStore implements Store {
       final NegotiatedRepresentationBag negotiatedBag = ((NegotiatedRepresentationBag) bag);
       final NegotiatedRepresentation representation = negotiatedBag.find(request).orElse(null);
       if (representation != null && representation.isValid()) {
-        return Optional.of(new InMemoryEntry(this, bag, representation));
+        return Optional.of(new InMemoryEntry(this, cacheKey, bag, representation));
       }
     } else if (bag instanceof SimpleRepresentationBag && ((SimpleRepresentationBag) bag).representation.isValid()) {
-      return Optional.of(new InMemoryEntry(this, bag, ((SimpleRepresentationBag) bag).representation));
+      return Optional.of(new InMemoryEntry(this, cacheKey, bag, ((SimpleRepresentationBag) bag).representation));
     }
 
     return Optional.empty();
+  }
+
+  @Override
+  public Stream<InMemoryEntry> find(final String cacheKey) {
+    Objects.requireNonNull(cacheKey, "CacheKey must not be null!");
+    try {
+      return find(SHA2CacheKeyBuilder.parse(cacheKey));
+    } catch (final IllegalArgumentException e) {
+      LOG.debug("Invalid cache key [{}]!", cacheKey, e);
+      return Stream.empty();
+    }
+  }
+
+  @Override
+  public Stream<InMemoryEntry> find(final CacheKey cacheKey) {
+    Objects.requireNonNull(cacheKey, "CacheKey must not be null!");
+    if (cacheKey instanceof SHA2CacheKeyBuilder.SHA2CacheKey) {
+      return find(((SHA2CacheKeyBuilder.SHA2CacheKey) cacheKey));
+    }
+    return Stream.empty();
+  }
+
+  private Stream<InMemoryEntry> find(final SHA2CacheKeyBuilder.SHA2CacheKey cacheKey) {
+    Objects.requireNonNull(cacheKey, "CacheKey must not be null!");
+
+    final Bag bag = bags.get(cacheKey);
+
+    if (bag == null) {
+      return Stream.empty();
+    }
+
+    if (bag instanceof NegotiatedRepresentationBag) {
+      final NegotiatedRepresentationBag negotiatedBag = ((NegotiatedRepresentationBag) bag);
+      return negotiatedBag.entries.stream()
+        .map(representation -> new InMemoryEntry(this, cacheKey, negotiatedBag, representation));
+    } else if (bag instanceof SimpleRepresentationBag && ((SimpleRepresentationBag) bag).representation.isValid()) {
+      return Stream.of(new InMemoryEntry(this, cacheKey, bag, ((SimpleRepresentationBag) bag).representation));
+    }
+
+    return Stream.empty();
   }
 
   @SuppressWarnings("unchecked")
@@ -219,7 +261,7 @@ public class InMemoryStore implements Store {
     );
     final SimpleRepresentationBag bag = new SimpleRepresentationBag(key, exchange.getRequest(), representation);
     bags.put(key, bag);
-    return new InMemoryEntry(this, bag, representation);
+    return new InMemoryEntry(this, key, bag, representation);
   }
 
   private InMemoryEntry createNegotiatedEntry(final ServerWebExchange exchange,
@@ -248,7 +290,7 @@ public class InMemoryStore implements Store {
       return ((NegotiatedRepresentationBag) existingBag).add(representation);
     });
 
-    return new InMemoryEntry(this, bag, representation);
+    return new InMemoryEntry(this, key, bag, representation);
   }
 
   private void remove(final Bag bag, final Representation representation) {
@@ -257,16 +299,24 @@ public class InMemoryStore implements Store {
 
   private static class InMemoryEntry implements Entry {
 
+    private final SHA2CacheKeyBuilder.SHA2CacheKey cacheKey;
     private final InMemoryStore store;
     private final Bag bag;
     private final Representation representation;
 
     private InMemoryEntry(final InMemoryStore store,
+                          final SHA2CacheKeyBuilder.SHA2CacheKey cacheKey,
                           final Bag bag,
                           final Representation representation) {
+      this.cacheKey = cacheKey;
       this.store = store;
       this.bag = bag;
       this.representation = representation;
+    }
+
+    @Override
+    public CacheKey getKey() {
+      return cacheKey;
     }
 
     @Override

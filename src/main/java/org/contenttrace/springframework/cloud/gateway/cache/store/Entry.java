@@ -7,9 +7,17 @@ import java.io.InputStream;
 import java.util.Optional;
 
 /**
- * A stored cache entry.
+ * A stored cache entry. An entry is a single representation of a cached resource. For a single resource, several
+ * entries may exist, sharing the same key.
  */
 public interface Entry {
+
+  /**
+   * Returns the cache key of the entry.
+   *
+   * @return the cache key
+   */
+  CacheKey getKey();
 
   /**
    * Returns the HTTP method the entry was created for.
