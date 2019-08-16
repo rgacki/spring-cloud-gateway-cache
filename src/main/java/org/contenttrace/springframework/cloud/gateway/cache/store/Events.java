@@ -3,9 +3,6 @@ package org.contenttrace.springframework.cloud.gateway.cache.store;
 /**
  * Provides read-only access to store events.
  *
- * <p>Whether and what events are captured depends on the store configuration. For production environments it is
- * recommended to only have errors to be recorded.</p>
- *
  * <p>Events must be propagated synchronously.</p>
  */
 public interface Events {

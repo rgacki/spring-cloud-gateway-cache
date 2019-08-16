@@ -1,5 +1,6 @@
 package org.contenttrace.springframework.cloud.gateway.cache.store.inmemory;
 
+import org.contenttrace.springframework.cloud.gateway.cache.store.Entry;
 import org.contenttrace.springframework.cloud.gateway.cache.store.Event;
 import org.contenttrace.springframework.cloud.gateway.cache.store.EventListener;
 import org.contenttrace.springframework.cloud.gateway.cache.store.Events;
@@ -28,8 +29,8 @@ class InMemoryEvents implements Events {
     listeners.forEach(listener -> listener.dispatched(event));
   }
 
-  void publishResourceCached(final ServerWebExchange exchange) {
-    publish(new InMemoryResourceCachedEvent(exchange.getRequest().getURI()));
+  void publishResourceCached(final ServerWebExchange exchange, final Entry entry) {
+    publish(new InMemoryResourceCachedEvent(exchange.getRequest().getURI(), entry));
   }
 
   @Override
@@ -65,14 +66,22 @@ class InMemoryEvents implements Events {
   static class InMemoryResourceCachedEvent extends InMemoryEvent implements ResourceCachedEvent {
 
     private final URI uri;
+    private final Entry entry;
 
-    InMemoryResourceCachedEvent(URI uri) {
+    InMemoryResourceCachedEvent(final URI uri,
+                                final Entry entry) {
       this.uri = uri;
+      this.entry = entry;
     }
 
     @Override
     public URI getURI() {
       return uri;
+    }
+
+    @Override
+    public Entry getEntry() {
+      return entry;
     }
 
 

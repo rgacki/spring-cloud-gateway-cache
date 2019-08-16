@@ -199,52 +199,56 @@ public class InMemoryStore implements Store {
   private void createEntry(final ServerWebExchange exchange,
                            final PayloadSink sink) {
     final List<String> vary = exchange.getResponse().getHeaders().getVary();
+    final InMemoryEntry entry;
     if (vary.isEmpty()) {
-      createSimpleEntry(exchange, sink);
+      entry = createSimpleEntry(exchange, sink);
     } else {
-      createNegotiatedEntry(exchange, sink, vary);
+      entry = createNegotiatedEntry(exchange, sink, vary);
     }
 
-    events().publishResourceCached(exchange);
+    events().publishResourceCached(exchange, entry);
   }
 
-  private void createSimpleEntry(final ServerWebExchange exchange,
-                                 final PayloadSink sink) {
+  private InMemoryEntry createSimpleEntry(final ServerWebExchange exchange,
+                                          final PayloadSink sink) {
     final SHA2CacheKeyBuilder.SHA2CacheKey key = createKey(exchange.getRequest());
-    final Representation entry = new Representation(
+    final Representation representation = new Representation(
       responseHeaders(exchange.getResponse()),
       sink.outputStream.getFrames(),
       sink.outputStream.size()
     );
-    final SimpleRepresentationBag bag = new SimpleRepresentationBag(key, exchange.getRequest(), entry);
+    final SimpleRepresentationBag bag = new SimpleRepresentationBag(key, exchange.getRequest(), representation);
     bags.put(key, bag);
+    return new InMemoryEntry(this, bag, representation);
   }
 
-  private void createNegotiatedEntry(final ServerWebExchange exchange,
-                                     final PayloadSink sink,
-                                     final List<String> vary) {
+  private InMemoryEntry createNegotiatedEntry(final ServerWebExchange exchange,
+                                              final PayloadSink sink,
+                                              final List<String> vary) {
     final SHA2CacheKeyBuilder.SHA2CacheKey key = createKey(exchange.getRequest());
 
     final HttpHeaders varyHeaders = new HttpHeaders();
     vary.forEach(header -> varyHeaders.addAll(header, exchange.getRequest().getHeaders().get(header)));
 
-    final NegotiatedRepresentation entry = new NegotiatedRepresentation(
+    final NegotiatedRepresentation representation = new NegotiatedRepresentation(
       responseHeaders(exchange.getResponse()),
       sink.outputStream.getFrames(),
       sink.outputStream.size(),
       varyHeaders
     );
 
-    bags.compute(key, (existingKey, existingBag) -> {
+    final Bag bag = bags.compute(key, (existingKey, existingBag) -> {
       if (!(existingBag instanceof NegotiatedRepresentationBag)) {
         return new NegotiatedRepresentationBag(
           key,
           exchange.getRequest(),
           new LinkedHashSet<>(vary)
-        ).add(entry);
+        ).add(representation);
       }
-      return ((NegotiatedRepresentationBag) existingBag).add(entry);
+      return ((NegotiatedRepresentationBag) existingBag).add(representation);
     });
+
+    return new InMemoryEntry(this, bag, representation);
   }
 
   private void remove(final Bag bag, final Representation representation) {
