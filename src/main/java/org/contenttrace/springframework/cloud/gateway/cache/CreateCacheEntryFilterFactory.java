@@ -8,6 +8,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
 import org.springframework.cloud.gateway.filter.WebClientWriteResponseFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.web.server.ServerWebExchange;
 
 public class CreateCacheEntryFilterFactory extends AbstractGatewayFilterFactory<CreateCacheEntryFilterFactory.Config> {
 
@@ -25,10 +26,25 @@ public class CreateCacheEntryFilterFactory extends AbstractGatewayFilterFactory<
     this.rule = rule;
   }
 
+  @SuppressWarnings("WeakerAccess")
+  protected boolean shouldCache(final ServerWebExchange exchange) {
+    return rule.applies(exchange);
+  }
+
   @Override
   public GatewayFilter apply(final Config config) {
-    return new OrderedGatewayFilter(new CreateCacheEntryFilter(cacheConfiguration, store, rule),
-      WebClientWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1);
+    return new OrderedGatewayFilter(((exchange, chain) -> {
+      if (!shouldCache(exchange)) {
+        LOG.debug("Not caching exchange [{}].", exchange);
+        return chain.filter(exchange);
+      }
+
+      if (cacheConfiguration.isExposeCacheEventHeader()) {
+        exchange.getResponse().getHeaders().add(cacheConfiguration.getCacheEventHeaderName(), "store");
+      }
+
+      return chain.filter(store.write(exchange));
+    }),WebClientWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1);
   }
 
   public static class Config {
