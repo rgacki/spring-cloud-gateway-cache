@@ -39,17 +39,4 @@ public interface CacheKeyProducer {
    */
   void createKey(ServerHttpRequest request, KeyBuilder builder);
 
-  /**
-   * Concatenates this producers with another.
-   *
-   * @param other the other producer
-   * @return the new producer
-   */
-  default CacheKeyProducer concat(final CacheKeyProducer other) {
-    return (request, builder) -> {
-      CacheKeyProducer.this.createKey(request, builder);
-      other.createKey(request, builder);
-    };
-  }
-
 }

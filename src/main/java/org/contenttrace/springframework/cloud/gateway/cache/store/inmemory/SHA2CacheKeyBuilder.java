@@ -37,7 +37,7 @@ class SHA2CacheKeyBuilder implements CacheKeyProducer.KeyBuilder {
     }
 
     @Override
-    public String toString() {
+    public String serializeAsString() {
       // TODO: Instead of Base64, use a hex
       return String.format("%s%s", CACHE_KEY_PREFIX, Base64Utils.encodeToUrlSafeString(key));
     }

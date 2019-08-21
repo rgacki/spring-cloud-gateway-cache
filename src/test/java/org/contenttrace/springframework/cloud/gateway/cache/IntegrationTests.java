@@ -1,4 +1,4 @@
-package org.contenttrace.springframework.cloud.gateway.cache.test2;
+package org.contenttrace.springframework.cloud.gateway.cache;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.junit.jupiter.SpringExtension;

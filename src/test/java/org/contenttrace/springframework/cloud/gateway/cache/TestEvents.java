@@ -56,15 +56,15 @@ public class TestEvents {
     return new EventAssert<>(event);
   }
 
-  public static abstract class AbstractEventAssert<SELF extends AbstractEventAssert<SELF>>
-    extends AbstractAssert<SELF, Event> {
+  public static abstract class AbstractEventAssert<SELF extends AbstractEventAssert<SELF, EVENT>, EVENT extends Event>
+    extends AbstractAssert<SELF, EVENT> {
 
-    public AbstractEventAssert(Event event, Class<?> selfType) {
+    public AbstractEventAssert(EVENT event, Class<?> selfType) {
       super(event, selfType);
     }
   }
 
-  public static class EventAssert<E extends Event> extends AbstractEventAssert<EventAssert<E>> {
+  public static class EventAssert<E extends Event> extends AbstractEventAssert<EventAssert<E>, E> {
 
     private final E event;
 

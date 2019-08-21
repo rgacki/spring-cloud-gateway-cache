@@ -1,12 +1,5 @@
 package org.contenttrace.springframework.cloud.gateway.cache;
 
-import org.contenttrace.springframework.cloud.gateway.cache.rules.Rule;
-import org.contenttrace.springframework.cloud.gateway.cache.rules.StandardRules;
-import org.contenttrace.springframework.cloud.gateway.cache.store.CacheKeyProducer;
-import org.contenttrace.springframework.cloud.gateway.cache.store.StandardCacheKeyProducer;
-import org.contenttrace.springframework.cloud.gateway.cache.store.Store;
-import org.contenttrace.springframework.cloud.gateway.cache.store.inmemory.InMemoryStoreConfiguration;
-import org.contenttrace.springframework.cloud.gateway.cache.store.inmemory.InMemoryStoreFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
@@ -40,8 +33,6 @@ public class InMemoryCacheTestApplication {
   public RouteLocator customRouteLocator(final RouteLocatorBuilder builder,
                                          final CreateCacheEntryFilterFactory createCacheEntryFilterFactory,
                                          final FindCacheEntryFilterFactory findCacheEntryFilterFactory) {
-
-    final Rule cacheRule = StandardRules.httpCompliant();
 
     final GatewayFilter createCacheEntry =
       createCacheEntryFilterFactory.apply(new CreateCacheEntryFilterFactory.Config());
