@@ -3,7 +3,7 @@ Adds HTTP cache capabilities to Spring Cloud Gateway.
 
 # Motivation
 My motivations are:
-1) Be able to replace the Dispatcher in Adobe Experience Manager (AEM) projects.
+1) Be able to replace the [Dispatcher in Adobe Experience Manager (AEM)](https://docs.adobe.com/content/help/en/experience-manager-dispatcher/using/dispatcher.html) projects.
 2) Work with Spring Cloud Gateway and its reactive API.
 3) Learn more about HTTP-compliant caching.
 
