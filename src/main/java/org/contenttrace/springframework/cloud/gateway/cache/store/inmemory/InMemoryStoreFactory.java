@@ -31,7 +31,7 @@ public class InMemoryStoreFactory implements StoreFactory {
 	}
 
 	@Override
-	public Store createStore(final CacheKeyProducer cacheKeyProducer) {
+	public Store createInstance(final CacheKeyProducer cacheKeyProducer) {
 		Objects.requireNonNull(cacheKeyProducer, "A cache key producer is required!");
 		return new InMemoryStore(cacheKeyProducer, configuration);
 	}
