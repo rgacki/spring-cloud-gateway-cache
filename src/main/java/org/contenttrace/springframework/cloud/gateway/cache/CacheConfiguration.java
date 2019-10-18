@@ -24,7 +24,6 @@ public class CacheConfiguration {
 
 	private boolean exposeCacheEventHeader = false;
 	private String cacheEventHeaderName = "X-Cache";
-	private String onValidCacheEntryRequestUrl = "forward://serve-cache-entry";
 
 	public boolean isExposeCacheEventHeader() {
 		return exposeCacheEventHeader;
@@ -42,11 +41,4 @@ public class CacheConfiguration {
 		this.cacheEventHeaderName = cacheEventHeaderName;
 	}
 
-	public String getOnValidCacheEntryRequestUrl() {
-		return onValidCacheEntryRequestUrl;
-	}
-
-	public void setOnValidCacheEntryRequestUrl(String onValidCacheEntryRequestUrl) {
-		this.onValidCacheEntryRequestUrl = onValidCacheEntryRequestUrl;
-	}
 }

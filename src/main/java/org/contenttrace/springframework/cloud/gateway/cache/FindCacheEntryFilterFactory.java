@@ -132,7 +132,7 @@ public class FindCacheEntryFilterFactory extends AbstractGatewayFilterFactory<Fi
 					response.getHeaders().putAll(filteredResponseHeaders);
 
 					exchange.getAttributes().put(CACHE_ENTRY_ATTRIBUTE_NAME, entry);
-					LOG.debug("Found cache entry [{}] for exchange [{}]. Request will be rerouted to [{}].", entry, exchange, cacheConfiguration.getOnValidCacheEntryRequestUrl());
+					LOG.debug("Found cache entry [{}] for exchange [{}].", entry, exchange);
 				} else {
 					entry.invalidate();
 					LOG.debug("Found cache entry [{}] for exchange [{}], but is invalid.", entry, exchange);
