@@ -1,3 +1,18 @@
+/*
+ * Copyright 2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.contenttrace.springframework.cloud.gateway.cache.store;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -7,36 +22,36 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
  */
 public interface CacheKeyProducer {
 
-  /**
-   * The key builder that is passed to the producer. The implementation is provided by the Store
-   * because the internal key representation is an implementation detail.
-   */
-  interface KeyBuilder {
+	/**
+	 * The key builder that is passed to the producer. The implementation is provided by the Store
+	 * because the internal key representation is an implementation detail.
+	 */
+	interface KeyBuilder {
 
-    /**
-     * Adds key material.
-     *
-     * @param material the material
-     * @return the builder instance
-     */
-    KeyBuilder add(byte[] material);
+		/**
+		 * Adds key material.
+		 *
+		 * @param material the material
+		 * @return the builder instance
+		 */
+		KeyBuilder add(byte[] material);
 
-    /**
-     * Adds key material.
-     *
-     * @param material the material
-     * @return the builder instance
-     */
-    KeyBuilder add(byte[] material, int offset, int length);
+		/**
+		 * Adds key material.
+		 *
+		 * @param material the material
+		 * @return the builder instance
+		 */
+		KeyBuilder add(byte[] material, int offset, int length);
 
-  }
+	}
 
-  /**
-   * Invoked to create a cache key for the given request.
-   *
-   * @param request the request to create the cache key for
-   * @param builder the builder of the key
-   */
-  void createKey(ServerHttpRequest request, KeyBuilder builder);
+	/**
+	 * Invoked to create a cache key for the given request.
+	 *
+	 * @param request the request to create the cache key for
+	 * @param builder the builder of the key
+	 */
+	void createKey(ServerHttpRequest request, KeyBuilder builder);
 
 }
