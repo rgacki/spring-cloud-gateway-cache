@@ -353,8 +353,8 @@ public class InMemoryStore implements Store {
     }
 
     @Override
-    public InputStream openStream() throws IOException {
-      return null;
+    public InputStream openStream() {
+      return new FrameInputStream(representation.payload);
     }
 
     @Override

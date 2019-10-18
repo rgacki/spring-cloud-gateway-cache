@@ -65,7 +65,7 @@ public abstract class CacheIntegrationTests extends IntegrationTests {
       .header("X-Test", "shouldCacheRequest(#2)")
       .exchange()
       .expectStatus().isOk()
-      .expectHeader().valueEquals("X-Cache", "hit", "store")
+      .expectHeader().valueEquals("X-Cache", "hit")
       .expectBody()
       .returnResult();
 

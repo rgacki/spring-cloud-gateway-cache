@@ -28,7 +28,8 @@ public class CreateCacheEntryFilterFactory extends AbstractGatewayFilterFactory<
 
   @SuppressWarnings("WeakerAccess")
   protected boolean shouldCache(final ServerWebExchange exchange) {
-    return rule.applies(exchange);
+    return exchange.getAttributes().get(FindCacheEntryFilterFactory.CACHE_ENTRY_ATTRIBUTE_NAME) == null
+        && rule.applies(exchange);
   }
 
   @Override
@@ -44,7 +45,7 @@ public class CreateCacheEntryFilterFactory extends AbstractGatewayFilterFactory<
       }
 
       return chain.filter(store.write(exchange));
-    }),WebClientWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1);
+    }), WebClientWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1);
   }
 
   public static class Config {
