@@ -71,7 +71,7 @@ public class FindCacheEntryFilterFactory extends AbstractGatewayFilterFactory<Fi
 		return true;
 	}
 
-	public List<HttpHeadersFilter> getHeadersFilters() {
+	protected List<HttpHeadersFilter> getHeadersFilters() {
 		if (headersFilters == null) {
 			headersFilters = headersFiltersProvider.getIfAvailable();
 		}

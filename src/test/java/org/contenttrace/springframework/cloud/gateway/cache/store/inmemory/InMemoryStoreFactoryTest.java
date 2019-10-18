@@ -33,7 +33,7 @@ class InMemoryStoreFactoryTest {
 		final InMemoryStoreFactory factory = new InMemoryStoreFactory(configuration);
 
 		// When
-		final Store store = factory.createInstance(cacheKeyProducer);
+		final Store store = factory.createStore(cacheKeyProducer);
 
 		// Then
 		assertNotNull(store);

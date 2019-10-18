@@ -34,6 +34,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static org.springframework.util.Assert.notNull;
+
 public class WriteCachedResponseFilter implements GlobalFilter, Ordered {
 
 	private static final Logger LOG = LoggerFactory.getLogger(WriteCachedResponseFilter.class);
@@ -43,6 +45,7 @@ public class WriteCachedResponseFilter implements GlobalFilter, Ordered {
 
 	public WriteCachedResponseFilter(final DataBufferFactory dataBufferFactory,
 																	 final List<MediaType> streamingMediaTypes) {
+		notNull(dataBufferFactory, "'dataBufferFactory' must not be null!");
 		this.dataBufferFactory = dataBufferFactory;
 		this.streamingMediaTypes = streamingMediaTypes;
 	}
