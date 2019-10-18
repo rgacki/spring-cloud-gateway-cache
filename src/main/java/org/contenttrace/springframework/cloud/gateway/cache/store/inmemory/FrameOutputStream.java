@@ -40,13 +40,13 @@ class FrameOutputStream extends OutputStream {
 	}
 
 	public FrameOutputStream(final int frameSize,
-													 final long estimatedSize) {
+							 final long estimatedSize) {
 		this(frameSize, estimatedSize, -1L);
 	}
 
 	FrameOutputStream(final int frameSize,
-										final long estimatedSize,
-										final long maximumSize) {
+					  final long estimatedSize,
+					  final long maximumSize) {
 		if (frameSize < 1) {
 			throw new IllegalArgumentException("'frameSize' must be larger 0!");
 		}

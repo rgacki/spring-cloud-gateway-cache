@@ -34,8 +34,8 @@ public class CreateCacheEntryFilterFactory extends AbstractGatewayFilterFactory<
 	private final Rule rule;
 
 	public CreateCacheEntryFilterFactory(final CacheConfiguration cacheConfiguration,
-																			 final Store store,
-																			 final Rule rule) {
+										 final Store store,
+										 final Rule rule) {
 		this.cacheConfiguration = cacheConfiguration;
 		this.store = store;
 		this.rule = rule;

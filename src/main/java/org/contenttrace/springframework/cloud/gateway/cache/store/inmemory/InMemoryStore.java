@@ -53,7 +53,7 @@ public class InMemoryStore implements Store {
 	private final InMemoryMetrics metrics;
 
 	InMemoryStore(final CacheKeyProducer cacheKeyProducer,
-								final InMemoryStoreConfiguration configuration) {
+				  final InMemoryStoreConfiguration configuration) {
 		Objects.requireNonNull(cacheKeyProducer, "A cache key producer is required!");
 		Objects.requireNonNull(configuration, "A configuration is required!");
 		this.cacheKeyProducer = cacheKeyProducer;
@@ -247,7 +247,7 @@ public class InMemoryStore implements Store {
 	}
 
 	private void createEntry(final ServerWebExchange exchange,
-													 final PayloadSink sink) {
+							 final PayloadSink sink) {
 		final List<String> vary = exchange.getResponse().getHeaders().getVary();
 		final InMemoryEntry entry;
 		if (vary.isEmpty()) {
@@ -260,7 +260,7 @@ public class InMemoryStore implements Store {
 	}
 
 	private InMemoryEntry createSimpleEntry(final ServerWebExchange exchange,
-																					final PayloadSink sink) {
+											final PayloadSink sink) {
 		final SHA2CacheKeyBuilder.SHA2CacheKey key = createKey(exchange.getRequest());
 		final Representation representation = new Representation(
 				responseHeaders(exchange.getResponse()),
@@ -273,8 +273,8 @@ public class InMemoryStore implements Store {
 	}
 
 	private InMemoryEntry createNegotiatedEntry(final ServerWebExchange exchange,
-																							final PayloadSink sink,
-																							final List<String> vary) {
+												final PayloadSink sink,
+												final List<String> vary) {
 		final SHA2CacheKeyBuilder.SHA2CacheKey key = createKey(exchange.getRequest());
 
 		final HttpHeaders varyHeaders = new HttpHeaders();
@@ -313,9 +313,9 @@ public class InMemoryStore implements Store {
 		private final Representation representation;
 
 		private InMemoryEntry(final InMemoryStore store,
-													final SHA2CacheKeyBuilder.SHA2CacheKey cacheKey,
-													final Bag bag,
-													final Representation representation) {
+							  final SHA2CacheKeyBuilder.SHA2CacheKey cacheKey,
+							  final Bag bag,
+							  final Representation representation) {
 			this.cacheKey = cacheKey;
 			this.store = store;
 			this.bag = bag;
@@ -404,8 +404,8 @@ public class InMemoryStore implements Store {
 		private final AtomicBoolean invalidated;
 
 		private Representation(final HttpHeaders responseHeaders,
-													 final List<byte[]> payload,
-													 final long size) {
+							   final List<byte[]> payload,
+							   final long size) {
 			requireNonNull(responseHeaders, "'responseHeaders' must not be null!");
 			requireNonNull(payload, "'payload' must not be null!");
 			this.responseHeaders = responseHeaders;
@@ -440,9 +440,9 @@ public class InMemoryStore implements Store {
 		private final HttpHeaders varyRequestHeaders;
 
 		private NegotiatedRepresentation(final HttpHeaders responseHeaders,
-																		 final List<byte[]> payload,
-																		 final long size,
-																		 final HttpHeaders varyRequestHeaders) {
+										 final List<byte[]> payload,
+										 final long size,
+										 final HttpHeaders varyRequestHeaders) {
 			super(responseHeaders, payload, size);
 			requireNonNull(varyRequestHeaders, "'varyRequestHeaders' must not be null!");
 			this.varyRequestHeaders = varyRequestHeaders;
@@ -491,7 +491,7 @@ public class InMemoryStore implements Store {
 		private final String query;
 
 		Bag(final SHA2CacheKeyBuilder.SHA2CacheKey key,
-				final ServerHttpRequest request) {
+			final ServerHttpRequest request) {
 			this.key = key;
 			this.method = request.getMethodValue();
 			this.host = request.getHeaders().getFirst("Host");
@@ -512,8 +512,8 @@ public class InMemoryStore implements Store {
 		private final Representation representation;
 
 		private SimpleRepresentationBag(final SHA2CacheKeyBuilder.SHA2CacheKey key,
-																		final ServerHttpRequest request,
-																		final Representation representation) {
+										final ServerHttpRequest request,
+										final Representation representation) {
 			super(key, request);
 			this.representation = representation;
 		}
@@ -530,8 +530,8 @@ public class InMemoryStore implements Store {
 		private final List<NegotiatedRepresentation> entries;
 
 		private NegotiatedRepresentationBag(final SHA2CacheKeyBuilder.SHA2CacheKey key,
-																				final ServerHttpRequest request,
-																				final Set<String> varyHeaders) {
+											final ServerHttpRequest request,
+											final Set<String> varyHeaders) {
 			super(key, request);
 			this.varyHeaders = varyHeaders;
 			this.entries = new CopyOnWriteArrayList<>();

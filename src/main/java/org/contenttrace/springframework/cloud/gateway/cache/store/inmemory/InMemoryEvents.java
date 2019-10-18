@@ -80,7 +80,7 @@ class InMemoryEvents implements Events {
 		private final Entry entry;
 
 		InMemoryResourceCachedEvent(final URI uri,
-																final Entry entry) {
+									final Entry entry) {
 			this.uri = uri;
 			this.entry = entry;
 		}

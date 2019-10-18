@@ -44,7 +44,7 @@ public class WriteCachedResponseFilter implements GlobalFilter, Ordered {
 	private final List<MediaType> streamingMediaTypes;
 
 	public WriteCachedResponseFilter(final DataBufferFactory dataBufferFactory,
-																	 final List<MediaType> streamingMediaTypes) {
+									 final List<MediaType> streamingMediaTypes) {
 		notNull(dataBufferFactory, "'dataBufferFactory' must not be null!");
 		this.dataBufferFactory = dataBufferFactory;
 		this.streamingMediaTypes = streamingMediaTypes;

@@ -46,8 +46,8 @@ public class InMemoryCacheTestApplication {
 
 	@Bean
 	public RouteLocator customRouteLocator(final RouteLocatorBuilder builder,
-																				 final CreateCacheEntryFilterFactory createCacheEntryFilterFactory,
-																				 final FindCacheEntryFilterFactory findCacheEntryFilterFactory) {
+										   final CreateCacheEntryFilterFactory createCacheEntryFilterFactory,
+										   final FindCacheEntryFilterFactory findCacheEntryFilterFactory) {
 
 		final GatewayFilter createCacheEntry =
 				createCacheEntryFilterFactory.apply(new CreateCacheEntryFilterFactory.Config());

@@ -53,9 +53,9 @@ public class FindCacheEntryFilterFactory extends AbstractGatewayFilterFactory<Fi
 	private volatile List<HttpHeadersFilter> headersFilters;
 
 	public FindCacheEntryFilterFactory(final CacheConfiguration cacheConfiguration,
-																		 final Store store,
-																		 final Rule rule,
-																		 final ObjectProvider<List<HttpHeadersFilter>> headersFiltersProvider) {
+									   final Store store,
+									   final Rule rule,
+									   final ObjectProvider<List<HttpHeadersFilter>> headersFiltersProvider) {
 		this.cacheConfiguration = cacheConfiguration;
 		this.store = store;
 		this.rule = rule;

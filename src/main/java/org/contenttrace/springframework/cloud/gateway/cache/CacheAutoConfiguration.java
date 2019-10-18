@@ -59,7 +59,7 @@ public class CacheAutoConfiguration {
 	@Bean
 	@Primary
 	public Store cacheStore(final CacheKeyProducer cacheKeyProducer,
-													final StoreFactory storeFactory) {
+							final StoreFactory storeFactory) {
 		return storeFactory.createInstance(cacheKeyProducer);
 	}
 
@@ -72,17 +72,17 @@ public class CacheAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public CreateCacheEntryFilterFactory createCacheEntryFilterFactory(final CacheConfiguration cacheConfiguration,
-																																		 final Store cacheStore,
-																																		 final Rule cacheRule) {
+																	   final Store cacheStore,
+																	   final Rule cacheRule) {
 		return new CreateCacheEntryFilterFactory(cacheConfiguration, cacheStore, cacheRule);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
 	public FindCacheEntryFilterFactory findCacheEntryFilterFactory(final CacheConfiguration cacheConfiguration,
-																																 final Store cacheStore,
-																																 final Rule cacheRule,
-																																 final ObjectProvider<List<HttpHeadersFilter>> headersFiltersProvider) {
+																   final Store cacheStore,
+																   final Rule cacheRule,
+																   final ObjectProvider<List<HttpHeadersFilter>> headersFiltersProvider) {
 		return new FindCacheEntryFilterFactory(cacheConfiguration, cacheStore, cacheRule, headersFiltersProvider);
 	}
 
