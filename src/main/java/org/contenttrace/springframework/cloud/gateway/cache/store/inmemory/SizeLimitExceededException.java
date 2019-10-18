@@ -20,7 +20,7 @@ import java.io.IOException;
 /**
  * Thrown if a size limit has been exceeded during an IO operation.
  *
- * @author Robert Gacki, robert.gacki@cgi.com
+ * @author Robert Gacki
  */
 public class SizeLimitExceededException extends IOException {
 
