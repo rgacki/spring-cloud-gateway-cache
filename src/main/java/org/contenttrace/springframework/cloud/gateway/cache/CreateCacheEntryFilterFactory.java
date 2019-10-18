@@ -28,13 +28,18 @@ public class CreateCacheEntryFilterFactory extends AbstractGatewayFilterFactory<
 
   @SuppressWarnings("WeakerAccess")
   protected boolean shouldCache(final ServerWebExchange exchange) {
-    return exchange.getAttributes().get(FindCacheEntryFilterFactory.CACHE_ENTRY_ATTRIBUTE_NAME) == null
-        && rule.applies(exchange);
+    return rule.applies(exchange);
   }
 
   @Override
   public GatewayFilter apply(final Config config) {
     return new OrderedGatewayFilter(((exchange, chain) -> {
+
+      if (exchange.getAttributes().get(FindCacheEntryFilterFactory.CACHE_ENTRY_ATTRIBUTE_NAME) != null) {
+        LOG.debug("Not caching exchange [{}]. A cache entry is available in the exchange.", exchange);
+        return chain.filter(exchange);
+      }
+
       if (!shouldCache(exchange)) {
         LOG.debug("Not caching exchange [{}].", exchange);
         return chain.filter(exchange);
